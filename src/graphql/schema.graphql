@@ -1,0 +1,17 @@
+type Query {
+  hello: String
+  getMovies: [Movie]!
+}
+
+type Movie {
+  id: String
+  title: String
+  publishingYear: String
+  imageUrl: String
+}
+
+input inputMovie {
+  title: String
+  publishingYear: String
+  imageUrl: String
+}

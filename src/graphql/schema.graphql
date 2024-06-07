@@ -1,17 +1,26 @@
+scalar Upload
+
 type Query {
-  hello: String
+  getMovieById(id: String!): Movie
   getMovies: [Movie]!
+}
+
+type Mutation {
+  addMovie(input: inputMovie!, file: Upload!): Movie
+  updateMovie(id:String!,input: inputMovie, file: Upload): Movie
+  deleteMovie(id: String!):String
 }
 
 type Movie {
   id: String
   title: String
-  publishingYear: String
+  publishingYear: Int
   imageUrl: String
+  createdAt: String
+  updatedAt: String
 }
 
 input inputMovie {
   title: String
-  publishingYear: String
-  imageUrl: String
+  publishingYear: Int
 }

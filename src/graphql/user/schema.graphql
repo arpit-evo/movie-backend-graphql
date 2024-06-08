@@ -5,7 +5,7 @@ type Query {
 
 type Mutation {
   register(input: inputUser!): User
-  # login(input: inputMovie!): loginResponse
+  login(input: inputUser!): loginResponse
 }
 
 type User {
@@ -21,7 +21,7 @@ input inputUser {
   password: String!
 }
 
-input loginResponse {
+type loginResponse {
   message: String
   accessToken: String
   refreshToken: String

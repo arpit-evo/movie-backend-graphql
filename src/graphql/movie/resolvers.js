@@ -1,5 +1,5 @@
-import cloudinary from "../middleware/cloudinary.middleware.js";
-import Movie from "../models/Movie.js";
+import cloudinary from "../../middleware/cloudinary.middleware.js";
+import Movie from "../../models/Movie.js";
 import GraphQLUpload from "graphql-upload/GraphQLUpload.mjs";
 import { createWriteStream, unlink } from "fs";
 import { finished } from "stream/promises";

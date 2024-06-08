@@ -6,17 +6,13 @@ import express from "express";
 import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.mjs";
 import http from "http";
 import mongoose from "mongoose";
-import resolvers from "./src/graphql/resolvers.js";
-import { GraphQLFileLoader } from "@graphql-tools/graphql-file-loader";
-import { loadSchema } from "@graphql-tools/load";
+import { resolvers, typeDefs } from "./src/graphql/index.js";
 const app = express();
 const httpServer = http.createServer(app);
 
 const server = new ApolloServer({
-  typeDefs: await loadSchema("./src/graphql/schema.graphql", {
-    loaders: [new GraphQLFileLoader()],
-  }),
-  resolvers: resolvers, 
+  typeDefs: typeDefs,
+  resolvers: resolvers,
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
 

@@ -1,0 +1,28 @@
+type Query {
+  getUserById(id: String!): User
+  getAllUser: [User]!
+}
+
+type Mutation {
+  register(input: inputUser!): User
+  # login(input: inputMovie!): loginResponse
+}
+
+type User {
+  id: String
+  email: String
+  password: String
+  createdAt: String
+  updatedAt: String
+}
+
+input inputUser {
+  email: String!
+  password: String!
+}
+
+input loginResponse {
+  message: String
+  accessToken: String
+  refreshToken: String
+}

@@ -7,8 +7,37 @@ import { finished } from "stream/promises";
 const resolvers = {
   Upload: GraphQLUpload,
   Query: {
-    getMovies: async () => {
-      return await Movie.find();
+    getMovies: async (_, { input }) => {
+      console.log(input);
+      const page = input.page || 1;
+      const limit = input.limit || 8;
+      const search = input.search || "";
+      let sort = input.sortBy.sort || "title";
+      let sortBy = {};
+      input.sortBy.order
+        ? (sortBy[sort] = input.sortBy.order)
+        : (sortBy[sort] = "asc");
+
+      try {
+        const totalCount = await Movie.countDocuments();
+        const searchCount = await Movie.countDocuments({
+          title: { $regex: search, $options: "i" },
+        });
+        const movies = await Movie.find({
+          title: { $regex: search, $options: "i" },
+        })
+          .sort(sortBy)
+          .skip((page - 1) * 8)
+          .limit(limit);
+
+        return {
+          movies,
+          totalCount,
+          searchCount,
+        };
+      } catch (error) {
+        console.log(error);
+      }
     },
     getMovieById: async (_, { id }) => {
       return await Movie.findById(id);
@@ -92,4 +121,4 @@ const resolvers = {
   },
 };
 
-export { resolvers }; 
+export { resolvers };

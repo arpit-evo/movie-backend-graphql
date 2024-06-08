@@ -2,13 +2,13 @@ scalar Upload
 
 type Query {
   getMovieById(id: String!): Movie
-  getMovies: [Movie]!
+  getMovies(input: parameter): movieResponse
 }
 
 type Mutation {
   addMovie(input: inputMovie!, file: Upload!): Movie
-  updateMovie(id:String!,input: inputMovie, file: Upload): Movie
-  deleteMovie(id: String!):String
+  updateMovie(id: String!, input: inputMovie, file: Upload): Movie
+  deleteMovie(id: String!): String
 }
 
 type Movie {
@@ -23,4 +23,22 @@ type Movie {
 input inputMovie {
   title: String
   publishingYear: Int
+}
+
+input parameter {
+  search: String
+  sort: sortBy
+  page: Int
+  limit: Int
+}
+
+input sortBy {
+  sort: String
+  order: String
+}
+
+type movieResponse {
+  movie: [Movie]
+  totalCount: Int
+  searchCount: Int
 }

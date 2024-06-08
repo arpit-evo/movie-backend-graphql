@@ -6,26 +6,36 @@ import express from "express";
 import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.mjs";
 import http from "http";
 import mongoose from "mongoose";
-import { resolvers, typeDefs } from "./src/graphql/index.js";
+import loadUserGraphQLSchema from "./src/graphql/user/index.js";
+import loadMovieGraphQLSchema from "./src/graphql/movie/index.js";
+
 const app = express();
 const httpServer = http.createServer(app);
 
-const server = new ApolloServer({
-  typeDefs: typeDefs,
-  resolvers: resolvers,
+const { userTypeDef, userResolovers } = await loadUserGraphQLSchema();
+const { movieTypeDef, movieResolvers } = await loadMovieGraphQLSchema();
+
+const userServer = new ApolloServer({
+  typeDefs: userTypeDef,
+  resolvers: userResolovers,
+  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+});
+const movieServer = new ApolloServer({
+  typeDefs: movieTypeDef,
+  resolvers: movieResolvers,
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
 
-await server.start();
+await userServer.start();
+await movieServer.start();
 
+app.use("/user", cors(), express.json(), expressMiddleware(userServer));
 app.use(
-  "/graphql",
-  cors({
-    origin: ["http://localhost:4000/graphql"],
-  }),
+  "/movie",
+  cors(),
   express.json(),
   graphqlUploadExpress(),
-  expressMiddleware(server)
+  expressMiddleware(movieServer)
 );
 
 mongoose.connect("mongodb://localhost:27017/movie").then(async () => {

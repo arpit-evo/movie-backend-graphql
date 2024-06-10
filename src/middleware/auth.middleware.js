@@ -14,17 +14,24 @@ export const authenticateToken = async (req) => {
     });
   }
 
-  jwt.verify(token, process.env.JWT_SECRET_KEY, async (err, decoded) => {
-    if (err) {
-      throw new GraphQLError("Forbidden", {
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      throw new GraphQLError("User not found", {
         extensions: {
-          code: "FORBIDDEN",
-          http: { status: 401 },
+          code: "USER_NOT_FOUND",
+          http: { status: 404 },
         },
       });
     }
-
-    const user = await User.findById({ _id: decoded.id });
-    return user
-  });
+    return user;
+  } catch (err) {
+    throw new GraphQLError("Forbidden", {
+      extensions: {
+        code: "FORBIDDEN",
+        http: { status: 403 },
+      },
+    });
+  }
 };

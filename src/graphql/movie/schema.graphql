@@ -16,6 +16,15 @@ type Movie {
   title: String
   publishingYear: Int
   imageUrl: String
+  createdBy: User
+  createdAt: String
+  updatedAt: String
+}
+
+type User {
+  id: String
+  email: String
+  password: String
   createdAt: String
   updatedAt: String
 }

@@ -8,7 +8,6 @@ const resolvers = {
   Upload: GraphQLUpload,
   Query: {
     getMovies: async (_, { input }) => {
-      console.log(input);
       const page = input ? input.page : 1;
       const limit = input ? input.limit : 8;
       const search = input && input.search ? input.search : "";
@@ -26,6 +25,7 @@ const resolvers = {
         const movies = await Movie.find({
           title: { $regex: search, $options: "i" },
         })
+          .populate("createdBy")
           .sort(sortBy)
           .skip((page - 1) * 8)
           .limit(limit);
@@ -40,13 +40,12 @@ const resolvers = {
       }
     },
     getMovieById: async (_, { id }) => {
-      return await Movie.findById(id);
+      return await Movie.findById(id).populate("createdBy");
     },
   },
   Mutation: {
-    addMovie: async (_, { input, file }) => {
+    addMovie: async (_, { input, file }, contextValue) => {
       const { filename, createReadStream } = await file;
-
       const tempPath = `./src/uploads/${filename}`;
 
       const stream = createReadStream();
@@ -63,10 +62,12 @@ const resolvers = {
           title: input.title,
           publishingYear: input.publishingYear,
           imageUrl: response.url,
+          createdBy: {
+            _id: contextValue.user._id,
+          },
         });
 
-        await newMovie.save();
-
+        await (await newMovie.save()).populate("createdBy");
         return newMovie;
       } catch (error) {
         console.log(error);
@@ -103,7 +104,9 @@ const resolvers = {
           imageUrl: url || movie.imageUrl,
         };
 
-        movie = await Movie.findByIdAndUpdate(id, updatedMovie, { new: true });
+        movie = await Movie.findByIdAndUpdate(id, updatedMovie, {
+          new: true,
+        }).populate("createdBy");
 
         return movie;
       } catch (error) {

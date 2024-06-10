@@ -11,6 +11,10 @@ const movieSchema = new mongoose.Schema(
     imageUrl: {
       type: String,
     },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    }
   },
   {
     timestamps: true,

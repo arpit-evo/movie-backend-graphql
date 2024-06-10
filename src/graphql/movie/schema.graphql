@@ -1,8 +1,19 @@
 scalar Upload
 
+enum CacheControlScope {
+  PUBLIC
+  PRIVATE
+}
+
+directive @cacheControl(
+  maxAge: Int
+  scope: CacheControlScope
+  inheritMaxAge: Boolean
+) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
+
 type Query {
-  getMovieById(id: String!): Movie
-  getMovies(input: parameter): movieResponse
+  getMovieById(id: String!): Movie @cacheControl
+  getMovies(input: parameter): movieResponse @cacheControl
 }
 
 type Mutation {
@@ -30,8 +41,8 @@ type User {
 }
 
 input inputMovie {
-  title: String
-  publishingYear: Int
+  title: String!
+  publishingYear: Int!
 }
 
 input parameter {

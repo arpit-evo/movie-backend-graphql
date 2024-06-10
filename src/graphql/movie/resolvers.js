@@ -1,8 +1,8 @@
+import { createWriteStream, unlink } from "fs";
+import GraphQLUpload from "graphql-upload/GraphQLUpload.mjs";
+import { finished } from "stream/promises";
 import cloudinary from "../../middleware/cloudinary.middleware.js";
 import Movie from "../../models/Movie.js";
-import GraphQLUpload from "graphql-upload/GraphQLUpload.mjs";
-import { createWriteStream, unlink } from "fs";
-import { finished } from "stream/promises";
 
 const resolvers = {
   Upload: GraphQLUpload,
@@ -45,6 +45,9 @@ const resolvers = {
   },
   Mutation: {
     addMovie: async (_, { input, file }, contextValue) => {
+      const keys = contextValue.cache.keys();
+      await contextValue.cache.delete(keys[0]);
+
       const { filename, createReadStream } = await file;
       const tempPath = `./src/uploads/${filename}`;
 
@@ -73,8 +76,12 @@ const resolvers = {
         console.log(error);
       }
     },
-    updateMovie: async (_, { id, input, file }) => {
+    updateMovie: async (_, { id, input, file }, contextValue) => {
       let url;
+
+      const keys = contextValue.cache.keys();
+      await contextValue.cache.delete(keys[0]);
+
       try {
         let movie = await Movie.findById(id);
 
@@ -113,7 +120,10 @@ const resolvers = {
         console.log(error);
       }
     },
-    deleteMovie: async (_, { id }) => {
+    deleteMovie: async (_, { id }, contextValue) => {
+      const keys = contextValue.cache.keys();
+      await contextValue.cache.delete(keys[0]);
+
       try {
         await Movie.findByIdAndDelete(id);
         return "Movie is deleted";

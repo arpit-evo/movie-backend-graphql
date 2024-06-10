@@ -1,16 +1,16 @@
 import { ApolloServer } from "@apollo/server";
+import responseCachePlugin from "@apollo/server-plugin-response-cache";
 import { expressMiddleware } from "@apollo/server/express4";
+import { ApolloServerPluginCacheControl } from "@apollo/server/plugin/cacheControl";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
+import { InMemoryLRUCache } from "@apollo/utils.keyvaluecache";
 import cors from "cors";
 import express from "express";
 import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.mjs";
 import http from "http";
 import mongoose from "mongoose";
-import jwt from "jsonwebtoken";
-import loadUserGraphQLSchema from "./src/graphql/user/index.js";
 import loadMovieGraphQLSchema from "./src/graphql/movie/index.js";
-import { GraphQLError } from "graphql";
-import User from "./src/models/User.js";
+import loadUserGraphQLSchema from "./src/graphql/user/index.js";
 import { authenticateToken } from "./src/middleware/auth.middleware.js";
 
 const app = express();
@@ -24,17 +24,27 @@ const userServer = new ApolloServer({
   resolvers: userResolvers,
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
+
+const cache = new InMemoryLRUCache();
+
 const movieServer = new ApolloServer({
   typeDefs: movieTypeDef,
   resolvers: movieResolvers,
   introspection: true,
-  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+  cache,
+  plugins: [
+    responseCachePlugin(),
+    ApolloServerPluginCacheControl({ defaultMaxAge: 60 }),
+    ApolloServerPluginDrainHttpServer({ httpServer }),
+  ],
 });
 
 await userServer.start();
 await movieServer.start();
+
 app.use(cors());
 app.use(express.json());
+
 app.use("/user", expressMiddleware(userServer));
 app.use(
   "/movie",
@@ -42,7 +52,7 @@ app.use(
   expressMiddleware(movieServer, {
     context: async ({ req }) => {
       const user = await authenticateToken(req);
-      return { user };
+      return { user, cache };
     },
   })
 );

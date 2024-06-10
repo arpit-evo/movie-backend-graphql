@@ -9,12 +9,12 @@ const resolvers = {
   Query: {
     getMovies: async (_, { input }) => {
       console.log(input);
-      const page = input.page || 1;
-      const limit = input.limit || 8;
-      const search = input.search || "";
-      let sort = input.sortBy.sort || "title";
+      const page = input ? input.page : 1;
+      const limit = input ? input.limit : 8;
+      const search = input && input.search ? input.search : "";
+      let sort = input && input.sort ? input.sortBy.sort : "title";
       let sortBy = {};
-      input.sortBy.order
+      input && input.sort
         ? (sortBy[sort] = input.sortBy.order)
         : (sortBy[sort] = "asc");
 

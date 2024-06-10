@@ -27,7 +27,7 @@ input inputMovie {
 
 input parameter {
   search: String
-  sort: sortBy
+  sortBy: sortBy
   page: Int
   limit: Int
 }
@@ -38,7 +38,7 @@ input sortBy {
 }
 
 type movieResponse {
-  movie: [Movie]
+  movies: [Movie]
   totalCount: Int
   searchCount: Int
 }

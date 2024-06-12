@@ -6,6 +6,7 @@ type Query {
 type Mutation {
   register(input: inputUser!): User
   login(input: inputUser!): loginResponse
+  refreshToken(refreshToken: String!): loginResponse
 }
 
 type User {

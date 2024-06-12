@@ -1,6 +1,7 @@
 import { GraphQLError } from "graphql";
 import User from "../../models/User.js";
 import bcryptjs from "bcryptjs";
+import jwt from "jsonwebtoken";
 import { generateToken } from "../../utils/generateToken.js";
 
 const resolvers = {
@@ -64,6 +65,39 @@ const resolvers = {
         };
       } catch (error) {
         console.log(error);
+      }
+    },
+    refreshToken: async (_, { refreshToken }) => {
+      try {
+        const decoded = jwt.verify(
+          refreshToken,
+          process.env.JWT_REFRESH_SECRET_KEY
+        );
+        const user = await User.findById(decoded.id);
+        if (!user) {
+          throw new GraphQLError("User not found", {
+            extensions: {
+              code: "USER_NOT_FOUND",
+              http: { status: 404 },
+            },
+          });
+        }
+
+        const { accessToken, refreshToken: newRefreshToken } =
+          await generateToken(user);
+
+        return {
+          message: "refresh token successfully ",
+          accessToken,
+          refreshToken: newRefreshToken,
+        };
+      } catch (err) {
+        throw new GraphQLError("Forbidden", {
+          extensions: {
+            code: "FORBIDDEN",
+            http: { status: 403 },
+          },
+        });
       }
     },
   },

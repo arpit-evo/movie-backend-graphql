@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-import {resolvers as movieResolvers} from "./resolvers.js"; // Adjust the path to where your resolvers are located
+import {resolvers as movieResolvers} from "./resolvers.js"; 
 
 async function loadMovieGraphQLSchema() {
   const movieTypeDef = await loadSchema(path.join(__dirname, "./schema.graphql"), {
